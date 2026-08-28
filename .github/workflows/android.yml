@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.UNITY_PASSWORD }}
 
       - name: Build Android APK
-        uses: buildalon/unity-builder@v1
+        uses: RageAgainstThePixel/unity-builder@v1
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
