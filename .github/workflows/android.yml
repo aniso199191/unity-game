@@ -1,4 +1,4 @@
-name: Build Android
+name: Build Android (Docker)
 
 on:
   push:
@@ -8,38 +8,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: unityci/editor:2022.3.48f1-android-1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Cache Library
-        uses: actions/cache@v4
-        with:
-          path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: Library-
-
-      - name: Setup Unity
-        uses: game-ci/unity-setup@v2
-        with:
-          unityVersion: 2022.3.48f1
-          modules: android
-
       - name: Activate Unity License
-        uses: game-ci/unity-activate@v2
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          unity-activate --email ${{ secrets.UNITY_EMAIL }} --password ${{ secrets.UNITY_PASSWORD }}
 
-      - name: Build Android APK
-        uses: game-ci/unity-builder@v4
+      - name: Build APK
+        run: |
+          /opt/unity/Editor/Unity \
+            -batchmode \
+            -quit \
+            -projectPath . \
+            -executeMethod UnityEditor.BuildPlayerCommand.BuildAndroid \
+            -logFile build.log
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: Android
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
